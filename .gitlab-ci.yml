@@ -16,15 +16,21 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
+
+before_script:
+  - python3 -m venv venv 
+  - . venv/bin/activate
+  - pip install -r requirements.txt
+
 stages:          # List of stages for jobs, and their order of execution
   - Test
-  - Static Analysis
+  - Static Analysis  
 
 flake8:
   stage: Static Analysis
   script:
-    - echo "installing flake8"
-    - pip install flake8 
+    #- echo "installing flake8"
+    #- pip install flake8 
     - echo "Running flakes8..."
     - flake8 megamart.py
 
