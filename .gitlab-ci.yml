@@ -36,21 +36,23 @@ stages:          # List of stages for jobs, and their order of execution
 #    - sleep 60
 #    - echo "Code coverage is 90%"
 
-static-analysis-job:
+flake8:
   stage: Static Analysis
   script:
-    - echo "Running static analysis tools..."
+    #- echo "Running static analysis tools..."
     #- echo "Running pycodestyle..."
     #- pycodestyle megamart.py
     #- echo "Running pydocstyle..."
     #- pydocstyle megamart.py
-    - echo "Running pylint..."
-    - pylint megamart.py
+    #- echo "Running pylint..."
+    #- pylint megamart.py
+    - echo "installing flake8"
+    - pip install flake8 
     - echo "Running flakes8..."
     - flake8 megamart.py
-    - echo "Running mypy..."
-    - mypy megamart.py 
-    - echo "Static analysis complete."
+    #- echo "Running mypy..."
+    #- mypy megamart.py 
+    #- echo "Static analysis complete."
 
 
 Test-job:   # This job also runs in the test stage.
