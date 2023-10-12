@@ -20,7 +20,6 @@
 before_script:
   - python3 -m venv venv 
   - . venv/bin/activate
-  - pip install -r requirements.txt
 
 stages:          # List of stages for jobs, and their order of execution
   - Test
