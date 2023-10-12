@@ -54,12 +54,62 @@ flake8:
     #- mypy megamart.py 
     #- echo "Static analysis complete."
 
+mypy:
+  stage: Static Analysis
+  script:
+    #- echo "Running static analysis tools..."
+    #- echo "Running pycodestyle..."
+    #- pycodestyle megamart.py
+    #- echo "Running pydocstyle..."
+    #- pydocstyle megamart.py
+    #- echo "Running pylint..."
+    #- pylint megamart.py
+    - echo "install mypy"
+    - pip install mypy
+    - echo "Running mypy..."
+    - mypy megamart.py 
+    #- echo "Static analysis complete."
+
+pycodestyle:
+  stage: Static Analysis
+  script:
+    #- echo "Running static analysis tools..."
+    - echo "install pycodestyle"
+    - pip install pycodestyle
+    - echo "Running pycodestyle..."
+    - pycodestyle megamart.py
+
+pydocstyle:
+  stage: Static Analysis
+  script:
+    #- echo "Running static analysis tools..."
+    #- echo "Running pycodestyle..."
+    #- pycodestyle megamart.py
+    - echo "install pydocstyle"
+    - pip install pydocstyle
+    - echo "Running pydocstyle..."
+    - pydocstyle megamart.py
+
+pylint:
+  stage: Static Analysis
+  script:
+    #- echo "Running static analysis tools..."
+    #- echo "Running pycodestyle..."
+    #- pycodestyle megamart.py
+    #- echo "Running pydocstyle..."
+    #- pydocstyle megamart.py
+    - echo "install pylint"
+    - pip install pylint
+    - echo "Running pylint..."
+    - pylint megamart.py
+
 
 testing:   # This job also runs in the test stage.
   stage: Test    # It can run at the same time as unit-test-job (in parallel).
   script:
     - python3 -m pip install coverage
     - coverage run test_megamart.py
+    - coverage report -m
 
 #lint-test-job:   # This job also runs in the test stage.
 #  stage: test    # It can run at the same time as unit-test-job (in parallel).
