@@ -20,8 +20,8 @@ stages:          # List of stages for jobs, and their order of execution
   #- build
   #- test
   #- deploy
-  - Static Analysis
   - Test
+  - Static Analysis
 
 #build-job:       # This job runs in the build stage, which runs first.
 #  stage: build
@@ -55,7 +55,7 @@ flake8:
     #- echo "Static analysis complete."
 
 
-Test-job:   # This job also runs in the test stage.
+testing:   # This job also runs in the test stage.
   stage: Test    # It can run at the same time as unit-test-job (in parallel).
   script:
     - pytest -v --cov==megamart
