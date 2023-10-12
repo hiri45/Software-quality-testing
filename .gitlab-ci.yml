@@ -17,10 +17,6 @@
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
 
-before_script:
-  - python3 -m venv venv 
-  - . venv/bin/activate
-
 stages:          # List of stages for jobs, and their order of execution
   - Test
   - Static Analysis  
@@ -28,9 +24,9 @@ stages:          # List of stages for jobs, and their order of execution
 flake8:
   stage: Static Analysis
   script:
-    #- echo "installing flake8"
-    #- pip install flake8 
-    - echo "Running flakes8..."
+    - echo "installing flake8"
+    - pip install flake8 
+    - echo "Running flakes8"
     - flake8 megamart.py
 
 mypy:
@@ -46,7 +42,7 @@ pycodestyle:
   script:
     - echo "install pycodestyle"
     - pip install pycodestyle
-    - echo "Running pycodestyle..."
+    - echo "Running pycodestyle"
     - pycodestyle megamart.py
 
 pydocstyle:
@@ -54,7 +50,7 @@ pydocstyle:
   script:
     - echo "install pydocstyle"
     - pip install pydocstyle
-    - echo "Running pydocstyle..."
+    - echo "Running pydocstyle"
     - pydocstyle megamart.py
 
 pylint:
@@ -62,7 +58,7 @@ pylint:
   script:
     - echo "install pylint"
     - pip install pylint
-    - echo "Running pylint..."
+    - echo "Running pylint"
     - pylint megamart.py
 
 
