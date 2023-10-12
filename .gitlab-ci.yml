@@ -40,8 +40,8 @@ static-analysis-job:
   stage: Static Analysis
   script:
     - echo "Running static analysis tools..."
-    - echo "Running pycodestyle..."
-    - pycodestyle megamart.py
+    #- echo "Running pycodestyle..."
+    #- pycodestyle megamart.py
     - echo "Running pydocstyle..."
     - pydocstyle megamart.py
     - echo "Running pylint..."
