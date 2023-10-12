@@ -58,7 +58,7 @@ flake8:
 testing:   # This job also runs in the test stage.
   stage: Test    # It can run at the same time as unit-test-job (in parallel).
   script:
-    - pytest -v --cov==megamart
+    - coverage run test_megamart.py
 
 #lint-test-job:   # This job also runs in the test stage.
 #  stage: test    # It can run at the same time as unit-test-job (in parallel).
