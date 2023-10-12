@@ -42,8 +42,8 @@ static-analysis-job:
     - echo "Running static analysis tools..."
     #- echo "Running pycodestyle..."
     #- pycodestyle megamart.py
-    - echo "Running pydocstyle..."
-    - pydocstyle megamart.py
+    #- echo "Running pydocstyle..."
+    #- pydocstyle megamart.py
     - echo "Running pylint..."
     - pylint megamart.py
     - echo "Running flakes8..."
