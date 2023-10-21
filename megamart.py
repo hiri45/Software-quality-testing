@@ -8,6 +8,7 @@ from typing import Dict, Tuple, Optional
 from DiscountType import DiscountType
 from PaymentMethod import PaymentMethod
 from FulfilmentType import FulfilmentType
+from TransactionLine import TransactionLine
 from Transaction import Transaction
 from Item import Item
 from Customer import Customer
