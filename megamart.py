@@ -360,27 +360,27 @@ def checkout(
         else:
             counter[line.item.id] = line.quantity
 
-    # Raise any Exception if happens
-    if is_not_allowed_to_purchase_item(line.item, transaction.customer, transaction.date):
-        raise RestrictedItemException("Can not buy")
-    cond1_stock = is_item_sufficiently_stocked(line.item, counter[line.item.id], items_dict)
-    cond2_stock = is_item_sufficiently_stocked(line.item, line.quantity, items_dict)
-    if not cond1_stock or not cond2_stock:
-        raise InsufficientStockException("Over stocked")
-    cond_limit = get_item_purchase_quantity_limit(line.item, items_dict)
-    if get_item_purchase_quantity_limit(line.item, items_dict) is None:
-        if cond_limit < counter[line.item.id] or cond_limit < line.quantity:
-            raise PurchaseLimitExceededException("Exceeded quantity")
+        # Raise any Exception if happens
+        if is_not_allowed_to_purchase_item(line.item, transaction.customer, transaction.date):
+            raise RestrictedItemException("Can not buy")
+        cond1_stock = is_item_sufficiently_stocked(line.item, counter[line.item.id], items_dict)
+        cond2_stock = is_item_sufficiently_stocked(line.item, line.quantity, items_dict)
+        if not cond1_stock or not cond2_stock:
+            raise InsufficientStockException("Over stocked")
+        cond_limit = get_item_purchase_quantity_limit(line.item, items_dict)
+        if get_item_purchase_quantity_limit(line.item, items_dict) is None:
+            if cond_limit < counter[line.item.id] or cond_limit < line.quantity:
+                raise PurchaseLimitExceededException("Exceeded quantity")
 
-    transaction.total_items_purchased += line.quantity
-    # The total of the final items cost after discount
-    line.final_cost = calculate_final_item_price(line.item, discounts_dict) * line.quantity
-    transaction.all_items_subtotal += line.final_cost
+        transaction.total_items_purchased += line.quantity
+        # The total of the final items cost after discount
+        line.final_cost = calculate_final_item_price(line.item, discounts_dict) * line.quantity
+        transaction.all_items_subtotal += line.final_cost
 
-    # Save the toal
-    price_final = calculate_final_item_price(line.item, discounts_dict)
-    saved = calculate_item_savings(line.item.original_price, price_final)
-    transaction.amount_saved += saved * line.quantity
+        # Save the toal
+        price_final = calculate_final_item_price(line.item, discounts_dict)
+        saved = calculate_item_savings(line.item.original_price, price_final)
+        transaction.amount_saved += saved * line.quantity
 
     # set the subtotal, savings surcharge,
     # rounding amount, final total in the transaction object.
