@@ -65,30 +65,30 @@ def is_not_allowed_to_purchase_item(item: Item, customer: Customer, purch_date: 
         if customer.id_verified is False:  # No id verify
             return True
 
-    # Validate the purchase date and birthdate.
-    format_date = "%d/%m/%Y"
-    purchase_date = ""
-    birth_date = ""
-    try:
-        purchase_date = datetime.strptime(purch_date, format_date)
-    except ValueError:
-        raise Exception("Incorrect date format")
-    try:
-        birth_date = datetime.strptime(customer.date_of_birth, format_date)
-    except ValueError:
-        raise Exception("Incorrect birth date format")
+        # Validate the purchase date and birthdate.
+        format_date = "%d/%m/%Y"
+        purchase_date = ""
+        birth_date = ""
+        try:
+            purchase_date = datetime.strptime(purch_date, format_date)
+        except ValueError:
+            raise Exception("Incorrect date format")
+        try:
+            birth_date = datetime.strptime(customer.date_of_birth, format_date)
+        except ValueError:
+            raise Exception("Incorrect birth date format")
 
-# compare the purchase date and birhtdate in YEAR, MONTH, DATE
-    if round(purchase_date.year - birth_date.year) < 18:
-        return True  # Customer is under 18
-    if purchase_date.month > birth_date.month:
-        return False
-    if purchase_date.month < birth_date.month:
-        return True
-    if purchase_date.day > birth_date.day:
-        return False
-    if purchase_date.day < birth_date.day:
-        return True
+    # compare the purchase date and birhtdate in YEAR, MONTH, DATE
+        if round(purchase_date.year - birth_date.year) < 18:
+            return True  # Customer is under 18
+        if purchase_date.month > birth_date.month:
+            return False
+        if purchase_date.month < birth_date.month:
+            return True
+        if purchase_date.day > birth_date.day:
+            return False
+        if purchase_date.day < birth_date.day:
+            return True
     # Non restircted categories
     return False
 
