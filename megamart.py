@@ -19,7 +19,7 @@ from InsufficientStockException import InsufficientStockException
 from FulfilmentException import FulfilmentException
 
 
-def cannot_purchase(item: Item, customer: Customer, purch_date: str) -> bool:
+def is_not_allowed_to_purchase_item(item: Item, customer: Customer, purch_date: str) -> bool:
     """
     Represent what cannot be purchased.
 
@@ -93,7 +93,7 @@ def cannot_purchase(item: Item, customer: Customer, purch_date: str) -> bool:
     return False
 
 
-def get_limit(
+def get_item_purchase_quantity_limit(
     item: Item,
     items_dict: Dict[str, Tuple[Item, int, Optional[int]]]
 ) -> Optional[int]:
@@ -127,7 +127,7 @@ def get_limit(
     return purchase_limit
 
 
-def right_stock(
+def is_item_sufficiently_stocked(
     item: Item,
     purchase_quantity: int,
     items_dict: Dict[str, Tuple[Item, int, Optional[int]]]
@@ -167,7 +167,7 @@ def right_stock(
         return False
 
 
-def final_price(item: Item, discounts_dict: Dict[str, Discount]) -> float:
+def calculate_final_item_price(item: Item, discounts_dict: Dict[str, Discount]) -> float:
     """
     Represent the final price.
 
@@ -218,7 +218,7 @@ def final_price(item: Item, discounts_dict: Dict[str, Discount]) -> float:
     return round(final, 2)
 
 
-def savings(item_original_price: float, item_final_price: float) -> float:
+def calculate_item_savings(item_original_price: float, item_final_price: float) -> float:
     """
     Represent the savings made.
 
@@ -240,7 +240,7 @@ def savings(item_original_price: float, item_final_price: float) -> float:
     return round(saving, 2)
 
 
-def ful_surch(
+def calculate_fulfilment_surcharge(
     fulfilment_type: FulfilmentType,
     customer: Customer
 ) -> float:
@@ -274,7 +274,7 @@ def ful_surch(
     return round(customer.delivery_distance_km*0.5, 2)
 
 
-def sub_round(subtotal: float, payment_method: PaymentMethod) -> float:
+def round_off_subtotal(subtotal: float, payment_method: PaymentMethod) -> float:
     """
     Represent the rounding of the subtotal.
 
@@ -360,32 +360,32 @@ def checkout(
             counter[line.item.id] = line.quantity
 
     # Raise any Exception if happens
-    if cannot_purchase(line.item, transaction.customer, transaction.date):
+    if is_not_allowed_to_purchase_item(line.item, transaction.customer, transaction.date):
         raise RestrictedItemException("Can not buy")
-    cond1_stock = right_stock(line.item, counter[line.item.id], items_dict)
-    cond2_stock = right_stock(line.item, line.quantity, items_dict)
+    cond1_stock = is_item_sufficiently_stocked(line.item, counter[line.item.id], items_dict)
+    cond2_stock = is_item_sufficiently_stocked(line.item, line.quantity, items_dict)
     if not cond1_stock or not cond2_stock:
         raise InsufficientStockException("Over stocked")
-    cond_limit = get_limit(line.item, items_dict)
-    if get_limit(line.item, items_dict) is None:
+    cond_limit = get_item_purchase_quantity_limit(line.item, items_dict)
+    if get_item_purchase_quantity_limit(line.item, items_dict) is None:
         if cond_limit < counter[line.item.id] or cond_limit < line.quantity:
             raise PurchaseLimitExceededException("Exceeded quantity")
 
     transaction.total_items_purchased += line.quantity
     # The total of the final items cost after discount
-    line.final_cost = final_price(line.item, discounts_dict) * line.quantity
+    line.final_cost = calculate_final_item_price(line.item, discounts_dict) * line.quantity
     transaction.all_items_subtotal += line.final_cost
 
     # Save the toal
-    price_final = final_price(line.item, discounts_dict)
-    saved = savings(line.item.original_price, price_final)
+    price_final = calculate_final_item_price(line.item, discounts_dict)
+    saved = calculate_item_savings(line.item.original_price, price_final)
     transaction.amount_saved += saved * line.quantity
 
     # set the subtotal, savings surcharge,
     # rounding amount, final total in the transaction object.
-    surch = ful_surch(transaction.fulfilment_type, transaction.customer)
+    surch = calculate_fulfilment_surcharge(transaction.fulfilment_type, transaction.customer)
     transaction.fulfilment_surcharge_amount = surch
-    sub = sub_round(transaction.all_items_subtotal, transaction.payment_method)
+    sub = round_off_subtotal(transaction.all_items_subtotal, transaction.payment_method)
     rounded = round(sub - transaction.all_items_subtotal, 2)
     transaction.rounding_amount_applied = rounded
     upd_sub = transaction.all_items_subtotal
