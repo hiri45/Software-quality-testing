@@ -344,11 +344,11 @@ def checkout(
     """
     # Validate The transaction and items_dict, discounts_dict
     if transaction is None:
-        raise Exception("Missing Transaction")
+        raise Exception("There is no Transaction provided")
     if items_dict is None:
-        raise Exception("Missing items_dict")
+        raise Exception("There is no items_dict provided")
     if discounts_dict is None:
-        raise Exception("Missing discount_dict")
+        raise Exception("There is no discounts_dict provided")
     # Initialize the variables
     transaction.amount_saved = 0.0
     transaction.total_items_purchased = 0
