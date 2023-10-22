@@ -156,11 +156,13 @@ def is_item_sufficiently_stocked(
     if item.id not in items_dict:
         return False
     _, stock_level, optional_purchase_quantity = items_dict[item.id]
-    optional_purchase_quantity = Optional[purchase_quantity]
-    if optional_purchase_quantity < 1:
+    if purchase_quantity < 1:
         raise ValueError("Purchase quantity must be at least 1")
     if stock_level < 0:
         raise ValueError("Stock level cannot be negative")
+    if optional_purchase_quantity is not None:
+        if purchase_quantity > optional_purchase_quantity:
+            raise ValueError("Purchase limit greater than opt limit")
     return purchase_quantity <= stock_level
 
 
