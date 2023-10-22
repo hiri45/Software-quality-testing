@@ -299,7 +299,7 @@ def round_off_subtotal(
     # if type(subtotal) != float:
     # raise Exception("Missing subtotal")
     if not isinstance(payment_method, PaymentMethod):
-        raise Exception("Missing Payment method")
+        raise ValueError("Missing Payment method")
 
     if payment_method.value == PaymentMethod.CASH.value:
         num = int((subtotal*1000)/10)
@@ -346,9 +346,9 @@ def checkout(
     if transaction is None:
         raise ValueError("Missing Transaction")
     if items_dict is None:
-        raise Exception("There is no items_dict provided")
+        raise ValueError("There is no items_dict provided")
     if discounts_dict is None:
-        raise Exception("There is no discounts_dict provided")
+        raise ValueError("There is no discounts_dict provided")
     # Initialize the variables
     transaction.amount_saved = 0.0
     transaction.total_items_purchased = 0
