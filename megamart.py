@@ -61,10 +61,10 @@ def is_not_allowed_to_purchase_item(
     item_categories = [category.lower() for category in item.categories]
     # if the customer buy the restricted category.
     if any(category in restricted_categories for category in item_categories):
+        if customer is None:  # No customer link
+            return True
         if customer.date_of_birth is None or (
           purch_date) is None or customer.id_verified is False:
-            return True
-        if customer is None:  # No customer link
             return True
         # Validate the purchase date and birthdate.
         format_date = "%d/%m/%Y"
