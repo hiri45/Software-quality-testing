@@ -155,7 +155,7 @@ def is_item_sufficiently_stocked(
         raise Exception("Not find dict")
     if item.id not in items_dict:
         return False
-    _, stock_level = items_dict[item.id]
+    _, stock_level, optional_purchase_quantity = items_dict[item.id]
     if purchase_quantity < 1:
         raise Exception("Purchase quantity must be at least 1")
     if stock_level < 0:
