@@ -61,15 +61,11 @@ def is_not_allowed_to_purchase_item(
     item_categories = [category.lower() for category in item.categories]
     # if the customer buy the restricted category.
     if any(category in restricted_categories for category in item_categories):
+        if customer.date_of_birth is None or (
+          purch_date) is None or customer.id_verified is False:
+            return True
         if customer is None:  # No customer link
             return True
-        if customer.date_of_birth is None:  # No birthdate
-            return True
-        if purch_date is None:  # No purchase date
-            return True
-        if customer.id_verified is False:  # No id verify
-            return True
-
         # Validate the purchase date and birthdate.
         format_date = "%d/%m/%Y"
         purchase_date = ""
@@ -77,22 +73,20 @@ def is_not_allowed_to_purchase_item(
         try:
             purchase_date = datetime.strptime(purch_date, format_date)
         except ValueError:
-            raise Exception("Incorrect date format")
+            raise Exception("Incorrect date format") from ValueError
         try:
             birth_date = datetime.strptime(customer.date_of_birth, format_date)
         except ValueError:
-            raise Exception("Incorrect birth date format")
+            raise Exception("Incorrect birth date format") from ValueError
 
     # compare the purchase date and birhtdate in YEAR, MONTH, DATE
         if round(purchase_date.year - birth_date.year) < 18:
             return True  # Customer is under 18
-        if purchase_date.month > birth_date.month:
+        if (purchase_date.month > birth_date.month) or (
+          purchase_date.day > birth_date.day):
             return False
-        if purchase_date.month < birth_date.month:
-            return True
-        if purchase_date.day > birth_date.day:
-            return False
-        if purchase_date.day < birth_date.day:
+        if purchase_date.month < birth_date.month or (
+          purchase_date.day < birth_date.day):
             return True
     # Non restircted categories
     return False
@@ -161,15 +155,12 @@ def is_item_sufficiently_stocked(
         raise Exception("Not find dict")
     if item.id not in items_dict:
         return False
-    _, stock_level, optional_purchase_quantity = items_dict[item.id]
+    _, stock_level = items_dict[item.id]
     if purchase_quantity < 1:
         raise Exception("Purchase quantity must be at least 1")
     if stock_level < 0:
         raise Exception("Stock level cannot be negative")
-    if purchase_quantity <= stock_level:
-        return True
-    if purchase_quantity > stock_level:
-        return False
+    return purchase_quantity <= stock_level
 
 
 def calculate_final_item_price(
@@ -213,7 +204,7 @@ def calculate_final_item_price(
     discount_amount = 0.0
 
     if discounts.type == DiscountType.PERCENTAGE:  # Percentage
-        if not (1 <= discounts.value <= 100):
+        if not 1 <= discounts.value <= 100:
             raise Exception("Invalid percentage")
         discount_amount = item.original_price * (discounts.value/100)
 
@@ -314,11 +305,11 @@ def round_off_subtotal(
         num = int((subtotal*1000)/10)
         if (num - 1) % 10 == 0 or (num - 6) % 10 == 0:
             return round(subtotal - 0.01, 2)
-        elif (num - 2) % 10 == 0 or (num - 7) % 10 == 0:
+        if (num - 2) % 10 == 0 or (num - 7) % 10 == 0:
             return round(subtotal - 0.02, 2)
-        elif (num - 4) % 10 == 0 or (num - 9) % 10 == 0:
+        if (num - 4) % 10 == 0 or (num - 9) % 10 == 0:
             return round(subtotal + 0.01, 2)
-        elif (num - 3) % 10 == 0 or (num - 8) % 10 == 0:
+        if (num - 3) % 10 == 0 or (num - 8) % 10 == 0:
             return round(subtotal + 0.02, 2)
 
     return subtotal
@@ -367,6 +358,7 @@ def checkout(
     transaction.final_total = 0.0
     counter = {}
     # loop through items in the trans line
+    line = TransactionLine
     for line in transaction.transaction_lines:
         if line.item.id in counter:
             counter[line.item.id] += line.quantity
@@ -423,6 +415,4 @@ def checkout(
     rounded = transaction.rounding_amount_applied
     surch = transaction.fulfilment_surcharge_amount
     transaction.final_total = sub + rounded + surch
-    TransactionLine
-
     return transaction
