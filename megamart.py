@@ -20,7 +20,11 @@ from InsufficientStockException import InsufficientStockException
 from FulfilmentException import FulfilmentException
 
 
-def is_not_allowed_to_purchase_item(item: Item, customer: Customer, purch_date: str) -> bool:
+def is_not_allowed_to_purchase_item(
+  item: Item,
+  customer: Customer,
+  purch_date: str
+) -> bool:
     """
     Represent what cannot be purchased.
 
@@ -168,7 +172,10 @@ def is_item_sufficiently_stocked(
         return False
 
 
-def calculate_final_item_price(item: Item, discounts_dict: Dict[str, Discount]) -> float:
+def calculate_final_item_price(
+    item: Item,
+    discounts_dict: Dict[str, Discount]
+) -> float:
     """
     Represent the final price.
 
@@ -219,7 +226,10 @@ def calculate_final_item_price(item: Item, discounts_dict: Dict[str, Discount]) 
     return round(final, 2)
 
 
-def calculate_item_savings(item_original_price: float, item_final_price: float) -> float:
+def calculate_item_savings(
+    item_original_price: float,
+    item_final_price: float
+) -> float:
     """
     Represent the savings made.
 
@@ -275,7 +285,10 @@ def calculate_fulfilment_surcharge(
     return round(customer.delivery_distance_km*0.5, 2)
 
 
-def round_off_subtotal(subtotal: float, payment_method: PaymentMethod) -> float:
+def round_off_subtotal(
+    subtotal: float,
+    payment_method: PaymentMethod
+) -> float:
     """
     Represent the rounding of the subtotal.
 
@@ -339,64 +352,77 @@ def checkout(
     object should be returned.
     """
     # Validate The transaction and items_dict, discounts_dict
-    if transaction == None:
-      raise Exception("Missing Transaction")
-    if items_dict == None:
-      raise Exception("Missing items_dict")
-    if discounts_dict == None:
-      raise Exception("Missing discount_dict")
-  # Initialize the variables
+    if transaction is None:
+        raise Exception("Missing Transaction")
+    if items_dict is None:
+        raise Exception("Missing items_dict")
+    if discounts_dict is None:
+        raise Exception("Missing discount_dict")
+    # Initialize the variables
     transaction.amount_saved = 0.0
     transaction.total_items_purchased = 0
     transaction.all_items_subtotal = 0.0
     transaction.fulfilment_surcharge_amount = 0.0
-    transaction.rounding_amount_applied = 0.0 
+    transaction.rounding_amount_applied = 0.0
     transaction.final_total = 0.0
-    counter = {} 
+    counter = {}
     # loop through items in the trans line
-    for line in transaction.transaction_lines: 
-      if line.item.id in counter: 
-        counter[line.item.id] += line.quantity 
-      else: 
-        counter[line.item.id] = line.quantity
+    for line in transaction.transaction_lines:
+        if line.item.id in counter:
+            counter[line.item.id] += line.quantity
+        else:
+            counter[line.item.id] = line.quantity
 
-  # Raise any Exception if happens
-      if is_not_allowed_to_purchase_item(line.item,transaction.customer,
-       transaction.date):
-        raise RestrictedItemException("Can not buy")
-      if not is_item_sufficiently_stocked(line.item, counter[line.item.id],
-       items_dict) or not is_item_sufficiently_stocked(line.item, line.quantity,
-        items_dict):
-        raise InsufficientStockException("Over stocked")
-      if get_item_purchase_quantity_limit(line.item, items_dict) != None:
-        if get_item_purchase_quantity_limit(line.item,
-         items_dict) < counter[
-          line.item.id] or get_item_purchase_quantity_limit(line.item,
-          items_dict) < line.quantity:
-          raise PurchaseLimitExceededException("Exceeded quantity")
+    # Raise any Exception if happens
+        if is_not_allowed_to_purchase_item(
+          line.item,
+          transaction.customer,
+          transaction.date):
+            raise RestrictedItemException("Can not buy")
+        if not is_item_sufficiently_stocked(
+          line.item,
+          counter[line.item.id],
+          items_dict) or not is_item_sufficiently_stocked(
+          line.item,
+          line.quantity,
+          items_dict):
+            raise InsufficientStockException("Over stocked")
+        if get_item_purchase_quantity_limit(line.item, items_dict) is not None:
+            if get_item_purchase_quantity_limit(
+              line.item,
+              items_dict) < counter[
+              line.item.id] or get_item_purchase_quantity_limit(
+              line.item,
+              items_dict
+              ) < line.quantity:
+                raise PurchaseLimitExceededException("Exceeded quantity")
 
-      transaction.total_items_purchased += line.quantity
-      #The total of the final items cost after discount   
-      line.final_cost = calculate_final_item_price(line.item,
-       discounts_dict) * line.quantity
-      transaction.all_items_subtotal += line.final_cost
+        transaction.total_items_purchased += line.quantity
+        # The total of the final items cost after discount
+        line.final_cost = calculate_final_item_price(
+          line.item,
+          discounts_dict) * line.quantity
+        transaction.all_items_subtotal += line.final_cost
 
-      # Save the toal
-      transaction.amount_saved += calculate_item_savings(
-        line.item.original_price,
-       calculate_final_item_price(line.item, discounts_dict)) * line.quantity
-    
-    # set the subtotal, savings surcharge, 
+        # Save the toal
+        transaction.amount_saved += calculate_item_savings(
+          line.item.original_price,
+          calculate_final_item_price(
+            line.item,
+            discounts_dict)) * line.quantity
+
+    # set the subtotal, savings surcharge,
     # rounding amount, final total in the transaction object,
     transaction.fulfilment_surcharge_amount = calculate_fulfilment_surcharge(
-      transaction.fulfilment_type, transaction.customer) 
+      transaction.fulfilment_type,
+      transaction.customer)
     transaction.rounding_amount_applied = round(round_off_subtotal(
       transaction.all_items_subtotal,
-       transaction.payment_method) - transaction.all_items_subtotal, 2)
+      transaction.payment_method) - transaction.all_items_subtotal, 2)
     sub = transaction.all_items_subtotal
     rounded = transaction.rounding_amount_applied
     surch = transaction.fulfilment_surcharge_amount
-    transaction.final_total = sub + rounded  + surch
-    
-    return transaction
+    transaction.final_total = sub + rounded + surch
+    TransactionLine
 
+    return transaction
