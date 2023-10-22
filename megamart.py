@@ -344,7 +344,7 @@ def checkout(
     """
     # Validate The transaction and items_dict, discounts_dict
     if transaction is None:
-        raise Exception("There is no Transaction provided")
+        raise ValueError("Missing Transaction")
     if items_dict is None:
         raise Exception("There is no items_dict provided")
     if discounts_dict is None:
