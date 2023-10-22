@@ -307,7 +307,7 @@ def round_off_subtotal(
     subtotal = round(subtotal, 2)
     # if type(subtotal) != float:
     # raise Exception("Missing subtotal")
-    if type(payment_method) != PaymentMethod:
+    if not isinstance(payment_method, PaymentMethod):
         raise Exception("Missing Payment method")
 
     if payment_method.value == PaymentMethod.CASH.value:
