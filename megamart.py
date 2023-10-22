@@ -54,7 +54,7 @@ def is_not_allowed_to_purchase_item(
     """
     # Check that an item object and purchase date string are actually provided.
     if item is None:
-        raise Exception("Item object must be provided")
+        raise ValueError("Item object must be provided")
 
     # Check the category/ uppercase category
     restricted_categories = ['alcohol', 'tobacco', 'knives']
@@ -73,11 +73,11 @@ def is_not_allowed_to_purchase_item(
         try:
             purchase_date = datetime.strptime(purch_date, format_date)
         except ValueError:
-            raise Exception("Incorrect date format") from ValueError
+            raise ValueError("Incorrect date format")
         try:
             birth_date = datetime.strptime(customer.date_of_birth, format_date)
         except ValueError:
-            raise Exception("Incorrect birth date format") from ValueError
+            raise ValueError("Incorrect birth date format")
 
     # compare the purchase date and birhtdate in YEAR, MONTH, DATE
         if round(purchase_date.year - birth_date.year) < 18:
@@ -111,9 +111,9 @@ def get_item_purchase_quantity_limit(
     item ID as values.
     """
     if item is None:
-        raise Exception("There is no item")
+        raise ValueError("There is no item")
     if items_dict is None:
-        raise Exception()
+        raise ValueError("There is no items_dict")
     # Check if the item exists in the dictionary
     if item.id not in items_dict:
         return None
@@ -148,18 +148,18 @@ def is_item_sufficiently_stocked(
     item ID as values.
     """
     if item is None:
-        raise Exception("Item object must be provided")
+        raise ValueError("Item object must be provided")
     if purchase_quantity is None:
-        raise Exception("Not find purchase quantity")
+        raise ValueError("Not find purchase quantity")
     if items_dict is None:
-        raise Exception("Not find dict")
+        raise ValueError("Not find dict")
     if item.id not in items_dict:
         return False
     _, stock_level, optional_purchase_quantity = items_dict[item.id]
     if purchase_quantity < 1:
-        raise Exception("Purchase quantity must be at least 1")
+        raise ValueError("Purchase quantity must be at least 1")
     if stock_level < 0:
-        raise Exception("Stock level cannot be negative")
+        raise ValueError("Stock level cannot be negative")
     return purchase_quantity <= stock_level
 
 
@@ -192,9 +192,9 @@ def calculate_final_item_price(
     """
     # Check that an item object, discount dict
     if item is None:
-        raise Exception("invalid item")
+        raise ValueError("invalid item")
     if discounts_dict is None:
-        raise Exception("Invalid dictionary")
+        raise ValueError("Invalid dictionary")
 
     # Check if the item in the discount dicts
     if item.id not in discounts_dict:
@@ -205,12 +205,12 @@ def calculate_final_item_price(
 
     if discounts.type == DiscountType.PERCENTAGE:  # Percentage
         if not 1 <= discounts.value <= 100:
-            raise Exception("Invalid percentage")
+            raise ValueError("Invalid percentage")
         discount_amount = item.original_price * (discounts.value/100)
 
     elif discounts.type == DiscountType.FLAT:  # Flat
         if discounts.value < 0 or discounts.value > item.original_price:
-            raise Exception("Invalid flat discount value")
+            raise ValueError("Invalid flat discount value")
         discount_amount = discounts.value
 
     final = item.original_price - discount_amount
@@ -231,12 +231,12 @@ def calculate_item_savings(
     than its original price, an Exception should be raised.
     """
     if item_original_price is None:
-        raise Exception("Original price not provided")
+        raise ValueError("Original price not provided")
     if item_final_price is None:
-        raise Exception("Final price not provided")
+        raise ValueError("Final price not provided")
 
     if item_final_price > item_original_price:
-        raise Exception("Final price cannot be greater than original price")
+        raise ValueError("Final price cannot be greater than original price")
 
     saving = item_original_price - item_final_price
     return round(saving, 2)
@@ -261,7 +261,7 @@ def calculate_fulfilment_surcharge(
     """
     # Exceptions
     if fulfilment_type is None:
-        raise Exception("The fullfilment_type are not provided")
+        raise ValueError("The fullfilment_type are not provided")
     # Choose anything other than delivery then return 0
     if fulfilment_type != FulfilmentType.DELIVERY:
         return 0.00
