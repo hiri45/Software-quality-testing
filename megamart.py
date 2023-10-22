@@ -160,9 +160,8 @@ def is_item_sufficiently_stocked(
         raise ValueError("Purchase quantity must be at least 1")
     if stock_level < 0:
         raise ValueError("Stock level cannot be negative")
-    if optional_purchase_quantity is not None:
-        if purchase_quantity > optional_purchase_quantity:
-            raise ValueError("Purchase limit greater than opt limit")
+    if purchase_quantity > optional_purchase_quantity:
+        raise PurchaseLimitExceededException("Purchase limit greater than opt limit")
     return purchase_quantity <= stock_level
 
 
