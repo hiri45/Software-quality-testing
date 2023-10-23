@@ -10,6 +10,7 @@ from PaymentMethod import PaymentMethod
 from FulfilmentType import FulfilmentType
 from Transaction import Transaction
 from Item import Item
+from TransactionLine import TransactionLine
 from Customer import Customer
 from Discount import Discount
 
@@ -420,3 +421,8 @@ def checkout(
     surch = transaction.fulfilment_surcharge_amount
     transaction.final_total = sub + rounded + surch
     return transaction
+
+
+def Transaction_line_use():
+    line = TransactionLine
+    return line

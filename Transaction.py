@@ -6,8 +6,8 @@ from PaymentMethod import PaymentMethod
 
 
 class Transaction:
-  date: str = None # format: dd/mm/YYYY e.g. 01/08/2023
-  time: str = None # format: HH:MM:SS e.g. 12:45:00
+  date: str  # format: dd/mm/YYYY e.g. 01/08/2023
+  time: str  # format: HH:MM:SS e.g. 12:45:00
   transaction_lines: List[TransactionLine] = []
   customer: Optional[Customer] = None
   fulfilment_type: Optional[FulfilmentType] = None
