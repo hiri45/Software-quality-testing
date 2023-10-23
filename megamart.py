@@ -344,10 +344,8 @@ def checkout(
     object should be returned.
     """
     # Validate The transaction and items_dict, discounts_dict
-    if transaction is None:
-        raise ValueError("Missing Transaction")
-    if items_dict is None:
-        raise ValueError("There is no items_dict provided")
+    if transaction is None or items_dict is None:
+        raise ValueError("Missing Transaction or items_dict")
     if discounts_dict is None:
         raise ValueError("There is no discounts_dict provided")
     # Initialize the variables
@@ -423,6 +421,11 @@ def checkout(
     return transaction
 
 
-def Transaction_line_use():
+def transaction_line_use():
+    """
+    Random function used to get a Transaction Line.
+
+    can be used to test a transaction line method.
+    """
     line = TransactionLine
     return line
