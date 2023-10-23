@@ -8,9 +8,9 @@ from typing import Dict, Tuple, Optional
 from DiscountType import DiscountType
 from PaymentMethod import PaymentMethod
 from FulfilmentType import FulfilmentType
-from TransactionLine import TransactionLine
 from Transaction import Transaction
 from Item import Item
+from TransactionLine import TransactionLine
 from Customer import Customer
 from Discount import Discount
 
@@ -68,8 +68,6 @@ def is_not_allowed_to_purchase_item(
             return True
         # Validate the purchase date and birthdate.
         format_date = "%d/%m/%Y"
-        purchase_date = ""
-        birth_date = ""
         try:
             purchase_date = datetime.strptime(purch_date, format_date)
         except ValueError as exc:
@@ -78,7 +76,6 @@ def is_not_allowed_to_purchase_item(
             birth_date = datetime.strptime(customer.date_of_birth, format_date)
         except ValueError as exc:
             raise ValueError("Incorrect birth date format") from exc
-
     # compare the purchase date and birhtdate in YEAR, MONTH, DATE
         if round(purchase_date.year - birth_date.year) < 18:
             return True  # Customer is under 18
@@ -160,9 +157,10 @@ def is_item_sufficiently_stocked(
         raise ValueError("Purchase quantity must be at least 1")
     if stock_level < 0:
         raise ValueError("Stock level cannot be negative")
-    if purchase_quantity > optional_purchase_quantity:
-        raise PurchaseLimitExceededException(
-          "Purchase limit greater than opt limit")
+    if optional_purchase_quantity is not None:
+        if purchase_quantity > optional_purchase_quantity:
+            raise PurchaseLimitExceededException(
+              "Purchase limit greater than opt limit")
     return purchase_quantity <= stock_level
 
 
@@ -205,16 +203,16 @@ def calculate_final_item_price(
 
     discounts = discounts_dict.get(item.id)
     discount_amount = 0.0
+    if discounts is not None:
+        if discounts.type == DiscountType.PERCENTAGE:
+            if not 1 <= discounts.value <= 100:
+                raise ValueError("Invalid percentage")
+            discount_amount = item.original_price * (discounts.value/100)
 
-    if discounts.type == DiscountType.PERCENTAGE:  # Percentage
-        if not 1 <= discounts.value <= 100:
-            raise ValueError("Invalid percentage")
-        discount_amount = item.original_price * (discounts.value/100)
-
-    elif discounts.type == DiscountType.FLAT:  # Flat
-        if discounts.value < 0 or discounts.value > item.original_price:
-            raise ValueError("Invalid flat discount value")
-        discount_amount = discounts.value
+        elif discounts.type == DiscountType.FLAT:  # Flat
+            if discounts.value < 0 or discounts.value > item.original_price:
+                raise ValueError("Invalid flat discount value")
+            discount_amount = discounts.value
 
     final = item.original_price - discount_amount
     return round(final, 2)
@@ -346,10 +344,8 @@ def checkout(
     object should be returned.
     """
     # Validate The transaction and items_dict, discounts_dict
-    if transaction is None:
-        raise ValueError("Missing Transaction")
-    if items_dict is None:
-        raise ValueError("There is no items_dict provided")
+    if transaction is None or items_dict is None:
+        raise ValueError("Missing Transaction or items_dict")
     if discounts_dict is None:
         raise ValueError("There is no discounts_dict provided")
     # Initialize the variables
@@ -359,9 +355,8 @@ def checkout(
     transaction.fulfilment_surcharge_amount = 0.0
     transaction.rounding_amount_applied = 0.0
     transaction.final_total = 0.0
-    counter = {}
+    counter: Dict[str, int] = {}
     # loop through items in the trans line
-    line = TransactionLine
     for line in transaction.transaction_lines:
         if line.item.id in counter:
             counter[line.item.id] += line.quantity
@@ -369,11 +364,12 @@ def checkout(
             counter[line.item.id] = line.quantity
 
     # Raise any Exception if happens
-        if is_not_allowed_to_purchase_item(
-          line.item,
-          transaction.customer,
-          transaction.date):
-            raise RestrictedItemException("Can not buy")
+        if transaction.customer is not None:
+            if is_not_allowed_to_purchase_item(
+              line.item,
+              transaction.customer,
+              transaction.date):
+                raise RestrictedItemException("Can not buy")
         if not is_item_sufficiently_stocked(
           line.item,
           counter[line.item.id],
@@ -382,14 +378,13 @@ def checkout(
           line.quantity,
           items_dict):
             raise InsufficientStockException("Over stocked")
-        if get_item_purchase_quantity_limit(line.item, items_dict) is not None:
-            if get_item_purchase_quantity_limit(
-              line.item,
-              items_dict) < counter[
-              line.item.id] or get_item_purchase_quantity_limit(
-              line.item,
-              items_dict
-              ) < line.quantity:
+        purchase_limit = get_item_purchase_quantity_limit(
+          line.item,
+          items_dict
+        )
+        if purchase_limit is not None:
+            if purchase_limit < counter[
+              line.item.id] or purchase_limit < line.quantity:
                 raise PurchaseLimitExceededException("Exceeded quantity")
 
         transaction.total_items_purchased += line.quantity
@@ -408,14 +403,29 @@ def checkout(
 
     # set the subtotal, savings surcharge,
     # rounding amount, final total in the transaction object,
-    transaction.fulfilment_surcharge_amount = calculate_fulfilment_surcharge(
-      transaction.fulfilment_type,
-      transaction.customer)
-    transaction.rounding_amount_applied = round(round_off_subtotal(
-      transaction.all_items_subtotal,
-      transaction.payment_method) - transaction.all_items_subtotal, 2)
+    if transaction.fulfilment_type is not None and (
+      transaction.customer is not None):
+        transaction.fulfilment_surcharge_amount = (
+          calculate_fulfilment_surcharge(
+            transaction.fulfilment_type,
+            transaction.customer
+          ))
+    if transaction.payment_method is not None:
+        transaction.rounding_amount_applied = round(round_off_subtotal(
+          transaction.all_items_subtotal,
+          transaction.payment_method) - transaction.all_items_subtotal, 2)
     sub = transaction.all_items_subtotal
     rounded = transaction.rounding_amount_applied
     surch = transaction.fulfilment_surcharge_amount
     transaction.final_total = sub + rounded + surch
     return transaction
+
+
+def transaction_line_use():
+    """
+    Random function used to get a Transaction Line.
+
+    can be used to test a transaction line method.
+    """
+    line = TransactionLine
+    return line

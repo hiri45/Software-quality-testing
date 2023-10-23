@@ -9,7 +9,6 @@ from InsufficientStockException import InsufficientStockException
 from FulfilmentException import FulfilmentException
 from InsufficientFundsException import InsufficientFundsException
 
-
 class TestMegaMart(unittest.TestCase):
   def test_is_not_allowed_to_purchase_item(self):
     item_alcohol = megamart.Item('1', 'Wine', 10.0, ['Alcohol'])
