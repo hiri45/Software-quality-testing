@@ -6,6 +6,8 @@ from FulfilmentType import FulfilmentType
 from RestrictedItemException import RestrictedItemException
 from PurchaseLimitExceededException import PurchaseLimitExceededException
 from InsufficientStockException import InsufficientStockException
+from megamart import TransactionLine
+from TransactionLine import TransactionLine 
 from FulfilmentException import FulfilmentException
 from InsufficientFundsException import InsufficientFundsException
 
